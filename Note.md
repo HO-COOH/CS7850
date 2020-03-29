@@ -76,3 +76,75 @@ Problem:
 ### Sliding Window
 ![SW:Sender](./images/1.png)
 ![SW:Receiver](./images/2.png)
+
+# IP
+## The internet network layer
+- IP stands for Internet protocol
+- Runs on all the nodes in a collection of networks and defines the infrastructure that allows the nodes and networks to function as a **single logical internetwork**.
+## Model
+- Connectionless
+- Best-effort (unreliable)
+  + packets can lost
+  + packets can be delivered out of order
+  + there may be duplicate packets
+  + can be delayed
+## Fragmentation and reassembly
+Because each network has some MTU ``(max. transmission unit)``, so big packets needs to be disassembled.
+![]
+## IP address classes
+
+- class A: 126 networks with 16 million hosts each
+- class B: 16K networks with 64K hosts each
+- class C: 2 million networks with 254 hosts each  
+Network ID = IP & class mask (bit wise and)
+- Class A networks: Mask = 255.0.0.0
+- Class B networks: Mask = 255.255.0.0
+- Class C networks: Mask = 255.255.255.0
+
+## Subnetting
+Solve the problem of inefficient use of hierarchical address space: further divide the addresses within one class  
+IP (known to world):        Network Number | Host number  
+Subnetted (known to site):  Network Number | subnet number | Host number    
+Subnet mask (known to site):11111111111......11111111111111|0...00000000    
+Subnet number = IP & subnet mask
+### Forwarding algorithm
+```
+forward(Destination)
+{
+    for each entry (SubnetNum, SubnetMask, NextHop)
+    {
+        D'=SubnetMask & Destination
+        if D'=SubnetNum
+        {
+            if(NextHop is interface)
+                ->D
+            else
+                ->NextHop
+        }
+        else
+            -> default router
+    }
+}
+```
+## Supernetting
+Combine some smaller networks into one class of addresses: assign one class block of addresses to nearby networks.  
+CIDR: (classless interdomain routing)
+- network number portion is determined by an extra number ``IP/x``, where x is number of bits in the network number part
+- all routers must implement CIDR
+IP:   Network Number | Host number /x
+      |     ...      |
+         x bits long
+         
+
+## Supernetting vs Subnetting
+- Subnetting is used to share one network address among multiple physical networks within an organization (AS)
+- CIDR aims to collapse the multiple network addresses that would be assigned to a single or multiple AS onto one (supernet) address. 
+## ARP (address resolution protocol)
+How to determines a node's MAC address knowing the IP address?
+### Possible solution
+- Encode physical address in host part of IP address X
+- ARP
+  + Table: IP -> MAC
+  + broadcast request if IP address is not in the table
+  + target machine responds with its MAC
+  + timeout machanics

@@ -1,0 +1,2 @@
+C:\Users\Peter\Desktop\CS7850\Project\client\Debug\client.exe
+C:\Users\Peter\Desktop\CS7850\Project\client\Debug\client.pdb
