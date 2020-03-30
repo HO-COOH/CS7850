@@ -134,7 +134,7 @@ CIDR: (classless interdomain routing)
 IP:   Network Number | Host number /x
       |     ...      |
          x bits long
-         
+
 
 ## Supernetting vs Subnetting
 - Subnetting is used to share one network address among multiple physical networks within an organization (AS)
@@ -148,3 +148,40 @@ How to determines a node's MAC address knowing the IP address?
   + broadcast request if IP address is not in the table
   + target machine responds with its MAC
   + timeout machanics
+
+## Routing
+### Forwarding vs routing
+- forwarding: select an output port based on destination and routing table
+- routing: the process of building a routing table
+### Problem
+Find the lowest cost path between src<->dest.  
+Factors:
+- static: topology
+- dynamic: load
+## Algorithms
+### Distance vector routing algorithm (RIP)
+- Each node maintains a set of triples ``{Destination, Cost, NextHop}``
+- Directly connected neighbors exchange updates ``{Destination, Cost}``
+- Update if 
+   1. smaller cost
+   2. came from next-hop
+![](./images/3.png)
+
+### Link State (OSPF: open shortest path first)
+- send to **all** nodes (not just neighbors) information about **directly connected links**
+- Reliable flooding:
+  + store most recent LSP from each node
+  + forward to all connected nodes except one that received from
+  + decrement TTL (discard when TTL=0)
+  ![](images/4.png)
+- Dijkstra's forwad search algorithm
+  1. Initialize ``Confirmed`` with current node (S,0,-)
+  2. For node just added ``Next``, select its LSP
+  3. For each neighbor ``N`` of ``Next``, ``cost(S,N)=cost(s,Next)+cost(Next,N)``. 
+    - If N is not in ``Confirmed`` or ``Tentative``, add (N, Cost, NextHop) -> ``Tentative``.
+    - If N is in ``Tentative`` and cost<current cost, replace the entry
+  4. If ``Tentative`` is empty, stop. Else, pick the least cost in ``Tentative`` -> ``Confirmed``, select as ``Next``. Goto 2.
+  ![](images/5.png)
+
+### Interdomain (BGP)
+![](images/6.png)
