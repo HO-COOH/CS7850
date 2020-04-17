@@ -1,15 +1,22 @@
 #include "Server.h"
+#include <future>
+#include <iostream>
+//#define cout cerr
 
-
+std::vector<std::thread> threads;
 int main()
 {
     Server s;
     s.loadUser();
-    s.accept();
+    
     while (true)
     {
-        if(s.process())
-            s.accept();
+        auto client_s=s.accept();
+        threads.emplace_back( [&](auto client)
+        {
+            while (!s.process(client))
+                ;
+        }, client_s);
     }
 }
 

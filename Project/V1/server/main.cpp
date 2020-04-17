@@ -8,7 +8,7 @@ int main()
     s.accept();
     while (true)
     {
-        if(s.process())
+        if(s.process()) //if session closed, accept new socket, else process it
             s.accept();
     }
 }

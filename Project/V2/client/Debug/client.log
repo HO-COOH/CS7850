@@ -1,3 +1,9 @@
 ﻿cl : command line warning D9035: option 'Gm' has been deprecated and will be removed in a future release
+  Client.cpp
+C:\Users\Peter\Desktop\CS7850\Project\V2\client\Client.cpp(41,23): warning C4996: 'gethostbyname': Use getaddrinfo() or GetAddrInfoW() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
+C:\Users\Peter\Desktop\CS7850\Project\V2\client\Client.cpp(51,14): warning C4996: 'inet_addr': Use inet_pton() or InetPton() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
+  Generating Code...
+  Skipping... (no relevant changes detected)
   main.cpp
-  client.vcxproj -> C:\Users\Peter\Desktop\CS7850\Project\client\.\Debug\client.exe
+  UI.cpp
+  client.vcxproj -> C:\Users\Peter\Desktop\CS7850\Project\V2\client\.\Debug\client.exe

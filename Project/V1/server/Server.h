@@ -13,7 +13,7 @@ constexpr size_t MIN_PASSWD_LENGTH = 4;
 constexpr size_t MAX_PASSWD_LENGTH = 8;
 class Server
 {
-    inline static std::unordered_map<std::string_view, int> commands{ {"login",1}, {"logout",2}, {"send",3}, {"newID",4} };
+    inline static std::unordered_map<std::string_view, int> commands{ {"login",1}, {"logout",2}, {"send",3}, {"newID",4}, {"help",5} };
     inline static std::string createUserErrorMsg{ "Error: User id length should be < " + std::to_string(MAX_ID_LENGTH) + " characters. Password should be " + std::to_string(MIN_PASSWD_LENGTH) + " ~ " + std::to_string(MAX_PASSWD_LENGTH) + " long." };
     SOCKET listenSocket;
     SOCKET s;
@@ -29,6 +29,7 @@ public:
     void logout();
     void message(std::string msg);
     void newID(std::string id, std::string passwd);
+    void help();
     Server();
     ~Server();
 };

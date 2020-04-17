@@ -19,6 +19,8 @@ int main(int argc, char **argv)
     {
         std::cout << '>';
         std::getline(std::cin, command);
+        if(command.empty())
+            continue;
         if(command.length() > MAX_LINE - 1)
         {
             std::cerr << "Command too long! Please retry!\n";

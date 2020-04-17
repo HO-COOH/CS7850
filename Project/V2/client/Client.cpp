@@ -15,7 +15,15 @@ void Client::receive()
     char data[MAX_LINE];
     int len = recv(s, data, MAX_LINE, 0);
     data[len] = 0;
-    std::cout << '>' << data << '\n';
+    std::cout << data << "\n>";
+}
+
+std::string Client::get_received_data()
+{
+    char data[MAX_LINE];
+    int len = recv(s, data, MAX_LINE, 0);
+    data[len] = 0;
+    return { data };
 }
 
 Client::Client(char* remote_address)

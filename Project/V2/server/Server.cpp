@@ -3,14 +3,33 @@
 #include <fstream>
 #include <algorithm>
 
-void Server::send(std::string data)
+void Server::send(Client& s, std::string data, bool server_msg)
 {
-    ::send(s, data.c_str(), data.length(), 0);
+    const std::string to_send = server_msg ? "Server: " + data : data;
+    ::send(s.s, to_send.c_str(), to_send.length(), 0);
 }
-bool Server::process()
+std::vector<Client>::iterator Server::get_record(int id)
 {
-    char buf[MAX_LINE];
-    auto length = recv(s, buf, MAX_LINE, 0);
+    return std::find_if(clients.begin(), clients.end(), [id](Client& record) {return record.id == id; });
+}
+void Server::sync(Client const& to_sync)
+{
+    *get_record(to_sync.id) = to_sync;
+}
+bool Server::process(Client& client)
+{
+#ifdef _DEBUG
+    std::cerr << "id=" << client.id << '\n';
+#endif
+    char buf[MAX_LINE]{};
+    const auto length = recv(client.s, buf, MAX_LINE, 0);
+    if(length==-1 || client.s==SOCKET_ERROR)   //connection closed
+    {
+        closesocket(client.s);
+        clients.erase(get_record(client.id));
+        std::cerr << "Connection closed"<<client.id<<"\n";
+        return true;
+    }
     buf[length] = '\0';
     size_t pos = std::distance(buf, std::find(buf, buf + MAX_LINE, ' '));
     const std::string_view command{ buf, pos==MAX_LINE? length:pos};
@@ -19,13 +38,14 @@ bool Server::process()
         switch (iter->second)
         {
         case 1:
-            login({ buf + pos + 1, std::find(buf+pos+1, buf+MAX_LINE, ' ')}, { &*std::find(std::rbegin(buf), std::rend(buf), ' ')+1});
+            login(client,{ buf + pos + 1, std::find(buf+pos+1, buf+MAX_LINE, ' ')}, { &*std::find(std::rbegin(buf), std::rend(buf), ' ')+1});
             break;
         case 2:
-            logout();
+            logout(client);
+            clients.erase(get_record(client.id));
             return true;
         case 3:
-            message({ buf + pos + 1 });
+            message(client, { buf + pos + 1 });
             break;
         case 4:
             {
@@ -33,30 +53,43 @@ bool Server::process()
                 {
                     if (const auto id_end = std::find(buf + pos + 1, buf + MAX_LINE, ' '), passwd_start = &*std::find(id_end, buf + MAX_LINE, ' ')+1; id_end != buf + MAX_LINE && passwd_start != buf + MAX_LINE)
                     {
-                        newID({ buf + pos + 1, id_end }, { passwd_start });
+                        newID(client, { buf + pos + 1, id_end }, { passwd_start });
                         break;
                     }
                 }
                 else
-                    send("Format: newID [username] [passwd]");
+                    send(client, "Format: newID [username] [passwd]", true);
                 break;
             }
+        case 5:
+            messageAll({ buf + pos + 1 });
+            break;
+        case 6:
+            who(client);
+            break;
+        case 7:
+            help(client);
         }
     }
     else
-        send("Command not found!");
+        send(client, "Command not found!", true);
+    sync(client);
     return false;
 }
-void Server::accept()
+Client Server::accept()
 {
-    s = ::accept(listenSocket, nullptr, nullptr);
-    if (s == SOCKET_ERROR)
+    static int id = 0;
+    Client temp{ id++, ::accept(listenSocket, nullptr, nullptr),{} };
+    if (temp.s == SOCKET_ERROR)
     {
         std::cerr << "accept() error \n";
         closesocket(listenSocket);
         WSACleanup();
+        return {};
     }
-    std::cout << "Client conncected!\n";
+    std::cout << "Client connected!\n";
+    clients.push_back(temp);
+    return temp;
 }
 void Server::loadUser()
 {
@@ -77,60 +110,99 @@ void Server::loadUser()
 #endif // DEBUG
 
 }
-void Server::login(std::string id, std::string passwd)
+void Server::login(Client& client, std::string id, std::string passwd)
 {
-    if (auto iter = users.find(id); iter == users.cend() || iter->second != passwd)    //user id not found or passwd incorrect
-        send("Server: Denied.");
+    if (auto iter = users.find(id); iter == users.cend() || iter->second != passwd)    //user id not found or password incorrect
+        send(client,"Denied.", true);
     else    //success
     {
-        logged_in = true;
-        logged_in_user = id;
-        send("Server: "+ id + " joins");
+        client.logged_in = true;
+        sync(client);
+        messageAll(id + " joins", true);
         std::cout << id << " login\n";
+        client.name = std::move(id);
     }
 }
-void Server::logout()
+void Server::logout(Client& client)
 {
-    if (logged_in) //success
+    if (client.logged_in) //success
     {
-        logged_in = false;
-        send("Server: " + logged_in_user + "left.");
-        std::cout << logged_in_user << " logout.\n";
-        logged_in_user.clear();
+        send(client, "You successfully logged out!", true);
+        client.logged_in = false;
+        messageAll(client.name + " left.", true);
+        std::cout << client.name << " logout.";
     }
     else
-        send("Server: Denied. Please login first.");
+        send(client,  "Denied. Please login first.", true);
 }
-void Server::message(std::string msg)
+void Server::message(Client& client, std::string msg)
 {
-    if (logged_in)
+    if (client.logged_in)
     {
-        send(logged_in_user + ": " + msg);
-        std::cout << logged_in_user << ": " << msg << '\n';
+        const auto dest_client_name_pos = msg.find(' ');
+        auto dest_client_name = msg.substr(0, dest_client_name_pos);
+        if (dest_client_name == "all")
+            messageAll(client.name+": "+msg.substr(dest_client_name_pos+1));
+        else
+        {
+            if (auto dest_iter = std::find_if(clients.begin(), clients.end(), [&dest_client_name](Client& client) {return client.name == dest_client_name; }); dest_iter != clients.end()) {
+                send(*dest_iter, client.name + ": " + msg.substr(dest_client_name_pos+1));
+                std::cout << client.name << "->" << msg << '\n';
+            }
+            else
+                send(client, "User [" + dest_client_name + "] not found", true);
+        }
     }
     else
-        send("Server: Denied. Please login first.");
+        send(client, "Denied. Please login first.", true);
 }
-void Server::newID(std::string id, std::string passwd)
+void Server::who(Client& client)
+{
+    if (client.logged_in)
+    {
+        std::string user_names;
+        for (const auto& client : clients)
+        {
+            if (client.logged_in)
+                user_names += (client.name + ",");
+        }
+        send(client, std::move(user_names), true);
+    }
+    else
+        send(client, "Denied. Please login first.", true);
+}
+void Server::messageAll(std::string msg, bool server_msg)
+{
+    for(auto& client:clients)
+    {
+        if (client.logged_in)
+            send(client, msg, server_msg);
+    }
+}
+void Server::newID(Client& client, std::string id, std::string passwd)
 {
 #ifdef _DEBUG
     std::cout << "Creating new id: " << id << " password: " << passwd << '\n';
 #endif // _DEBUG
 
     if(id.length()>MAX_ID_LENGTH || passwd.length() < MIN_PASSWD_LENGTH || passwd.length() > MAX_PASSWD_LENGTH) //rules not satisfied
-        send(createUserErrorMsg);
+        send(client, createUserErrorMsg);
     else
     {
         if (users.find(id) != users.cend())
-            send("User " + id + " already exist!");
+            send(client, "User " + id + " already exist!");
         else
         {
             users[id] = passwd;
             if (std::ofstream file{ "users.txt",std::ios_base::app }; file.is_open())
                 file << "\n" << id << ',' << passwd;
-            send("Successfully created new user id:" + id);
+            send(client, "Successfully created new user id:" + id);
         }
     }
+}
+void Server::help(Client& client)
+{
+    send(client, "Supported commands : \n\tlogin[username][password]\n\tlogout\n\tsend[userID][message]\n\tsend all[message]\n\tnewID[newUserName][password]\n\twho\n\thelp:display this message again", true);
 }
 Server::Server()
 {

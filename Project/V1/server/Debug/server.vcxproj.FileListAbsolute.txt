@@ -1,2 +1,4 @@
 C:\Users\Peter\Desktop\CS7850\Project\server\Debug\server.exe
 C:\Users\Peter\Desktop\CS7850\Project\server\Debug\server.pdb
+C:\Users\Peter\Desktop\CS7850\Project\V1\server\Debug\server.exe
+C:\Users\Peter\Desktop\CS7850\Project\V1\server\Debug\server.pdb

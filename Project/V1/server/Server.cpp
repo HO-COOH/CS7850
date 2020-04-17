@@ -11,6 +11,12 @@ bool Server::process()
 {
     char buf[MAX_LINE];
     auto length = recv(s, buf, MAX_LINE, 0);
+    if(length==-1 || s==SOCKET_ERROR)
+    {
+        closesocket(s);
+        std::cout << "Connection closed!\n";
+        return true;
+    }
     buf[length] = '\0';
     size_t pos = std::distance(buf, std::find(buf, buf + MAX_LINE, ' '));
     const std::string_view command{ buf, pos==MAX_LINE? length:pos};
@@ -19,7 +25,10 @@ bool Server::process()
         switch (iter->second)
         {
         case 1:
-            login({ buf + pos + 1, std::find(buf+pos+1, buf+MAX_LINE, ' ')}, { &*std::find(std::rbegin(buf), std::rend(buf), ' ')+1});
+            if (pos == MAX_LINE)
+                help();
+            else
+                login({ buf + pos + 1, std::find(buf+pos+1, buf+MAX_LINE, ' ')}, { &*std::find(std::rbegin(buf), std::rend(buf), ' ')+1});
             break;
         case 2:
             logout();
@@ -41,6 +50,8 @@ bool Server::process()
                     send("Format: newID [username] [passwd]");
                 break;
             }
+        default:
+            help();
         }
     }
     else
@@ -131,6 +142,10 @@ void Server::newID(std::string id, std::string passwd)
             send("Successfully created new user id:" + id);
         }
     }
+}
+void Server::help()
+{
+    send("Server: Supported commands:\n\tlogin [username] [password]\n\tlogout\n\tsend [message]\n\tnewID [newUserName] [password]\n\thelp:display this message again");
 }
 Server::Server()
 {
