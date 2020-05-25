@@ -2,3 +2,5 @@ C:\Users\Peter\Desktop\CS7850\Project\client\Debug\client.exe
 C:\Users\Peter\Desktop\CS7850\Project\client\Debug\client.pdb
 C:\Users\Peter\Desktop\CS7850\Project\V2\client\Debug\client.exe
 C:\Users\Peter\Desktop\CS7850\Project\V2\client\Debug\client.pdb
+E:\New folder\CS7850\Project\V2\client\Debug\client.exe
+E:\New folder\CS7850\Project\V2\client\Debug\client.pdb

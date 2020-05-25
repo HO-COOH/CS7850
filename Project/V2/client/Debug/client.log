@@ -1,9 +1,24 @@
 ﻿cl : command line warning D9035: option 'Gm' has been deprecated and will be removed in a future release
-  Client.cpp
-C:\Users\Peter\Desktop\CS7850\Project\V2\client\Client.cpp(41,23): warning C4996: 'gethostbyname': Use getaddrinfo() or GetAddrInfoW() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
-C:\Users\Peter\Desktop\CS7850\Project\V2\client\Client.cpp(51,14): warning C4996: 'inet_addr': Use inet_pton() or InetPton() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
-  Generating Code...
-  Skipping... (no relevant changes detected)
-  main.cpp
   UI.cpp
-  client.vcxproj -> C:\Users\Peter\Desktop\CS7850\Project\V2\client\.\Debug\client.exe
+E:\New folder\CS7850\Project\V2\client\Console.h(336,29): warning C4101: 'screen_buffer_info': unreferenced local variable
+E:\New folder\CS7850\Project\V2\client\UI.cpp(66,126): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+E:\New folder\CS7850\Project\V2\client\UI.cpp(67,45): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+E:\New folder\CS7850\Project\V2\client\UI.cpp(70,37): warning C4244: 'initializing': conversion from 'double' to 'short', possible loss of data
+E:\New folder\CS7850\Project\V2\client\UI.cpp(70,26): warning C4244: 'initializing': conversion from 'double' to 'const short', possible loss of data
+E:\New folder\CS7850\Project\V2\client\UI.cpp(72,30): warning C4018: '<': signed/unsigned mismatch
+E:\New folder\CS7850\Project\V2\client\UI.cpp(64,47): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+E:\New folder\CS7850\Project\V2\client\UI.cpp(93,21): warning C4018: '<': signed/unsigned mismatch
+E:\New folder\CS7850\Project\V2\client\UI.cpp(98,84): warning C4267: 'initializing': conversion from 'size_t' to 'short', possible loss of data
+E:\New folder\CS7850\Project\V2\client\UI.cpp(98,86): warning C4018: '<': signed/unsigned mismatch
+E:\New folder\CS7850\Project\V2\client\UI.cpp(98,84): warning C4018: '<': signed/unsigned mismatch
+E:\New folder\CS7850\Project\V2\client\UI.cpp(190,24): warning C4838: conversion from 'size_t' to 'SHORT' requires a narrowing conversion
+E:\New folder\CS7850\Project\V2\client\UI.cpp(190,80): warning C4267: 'initializing': conversion from 'size_t' to 'SHORT', possible loss of data
+E:\New folder\CS7850\Project\V2\client\UI.cpp(219,29): warning C4018: '<': signed/unsigned mismatch
+  main.cpp
+E:\New folder\CS7850\Project\V2\client\Console.h(336,29): warning C4101: 'screen_buffer_info': unreferenced local variable
+  Client.cpp
+E:\New folder\CS7850\Project\V2\client\Client.cpp(41,23): warning C4996: 'gethostbyname': Use getaddrinfo() or GetAddrInfoW() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
+E:\New folder\CS7850\Project\V2\client\Client.cpp(51,14): warning C4996: 'inet_addr': Use inet_pton() or InetPton() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
+  Generating Code...
+Client.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/SAFESEH' specification
+  client.vcxproj -> E:\New folder\CS7850\Project\V2\client\.\Debug\client.exe
